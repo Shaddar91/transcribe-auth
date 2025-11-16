@@ -1,20 +1,17 @@
 services:
   auth-service:
-    image: __ECR_IMAGE__
+    image: ${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}
     container_name: transcribe-auth
     env_file:
       - .env
     ports:
       - "8000:80"
+    volumes:
+      - ./transcribe-auth/app:/code/app
     networks:
       - transcribe-network
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:80/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+
 
 networks:
   transcribe-network:
