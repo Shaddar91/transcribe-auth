@@ -46,3 +46,25 @@ jobs:
 
       - name: Image digest
         run: echo "Image pushed with tag ${{ github.sha }}"
+
+      #Prepare docker-compose.yml for deployment to S3
+      - name: Generate docker-compose.yml from template
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          #Substitute __ECR_IMAGE__ placeholder with actual image URI
+          ECR_IMAGE="${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}"
+          sed "s|__ECR_IMAGE__|${ECR_IMAGE}|g" docker-compose.template.yml > docker-compose.yml
+          echo "Generated docker-compose.yml:"
+          cat docker-compose.yml
+
+      #Upload docker-compose.yml to S3 artifact bucket
+      - name: Upload docker-compose.yml to S3
+        env:
+          S3_BUCKET: ${{ secrets.ARTIFACT_BUCKET_NAME }}
+          S3_PATH: environment/production/transcription/transcribe-auth/docker-compose.yml
+        run: |
+          aws s3 cp docker-compose.yml s3://${S3_BUCKET}/${S3_PATH}
+          echo "Uploaded docker-compose.yml to s3://${S3_BUCKET}/${S3_PATH}"
