@@ -1,4 +1,4 @@
-name: transcribe-auth Build and Push to ECR
+name: transcribe-auth Build and Push to ECR (OIDC)
 
 on:
   push:
@@ -8,6 +8,11 @@ on:
     branches:
       - master
 
+# Required for OIDC authentication
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
@@ -15,21 +20,19 @@ jobs:
       name: transcribe-auth-master
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
+      # Configure AWS credentials using OIDC - no access keys needed!
+      - name: Configure AWS Credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.CICD_ROLE }}
-          aws-region: eu-central-1
-          role-session-name: cicd
-          aws-access-key-id: ${{ secrets.CICD_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.CICD_ACCESS_KEY }}
-          role-duration-seconds: 1200
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+          role-session-name: github-actions-transcribe-auth
 
       - name: Login to Amazon ECR
         id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
+        uses: aws-actions/amazon-ecr-login@v2
 
       - name: Build, tag, and push image to Amazon ECR
         env:
@@ -37,7 +40,10 @@ jobs:
           ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          docker build -t $$ECR_REGISTRY/$$ECR_REPOSITORY:$$IMAGE_TAG .
+          docker tag $$ECR_REGISTRY/$$ECR_REPOSITORY:$$IMAGE_TAG $$ECR_REGISTRY/$$ECR_REPOSITORY:latest
+          docker push $$ECR_REGISTRY/$$ECR_REPOSITORY:$$IMAGE_TAG
+          docker push $$ECR_REGISTRY/$$ECR_REPOSITORY:latest
+
+      - name: Image digest
+        run: echo "Image pushed with tag ${{ github.sha }}"
