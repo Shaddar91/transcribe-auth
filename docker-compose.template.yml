@@ -1,0 +1,30 @@
+#Docker Compose template for production deployment
+#This file is processed by CI/CD pipeline and uploaded to S3
+#Variables will be substituted during deployment
+
+services:
+  auth-service:
+    image: __ECR_IMAGE__
+    container_name: transcribe-auth
+    environment:
+      #Database connection - will be provided by server secrets
+      - DATABASE_URL=${DATABASE_URL}
+      #CORS configuration
+      - ALLOWED_ORIGIN=${ALLOWED_ORIGIN:-https://transcribe.cloudlord.com}
+      #Session configuration
+      - SESSION_EXPIRY_DAYS=${SESSION_EXPIRY_DAYS:-7}
+    ports:
+      - "8000:80"
+    networks:
+      - transcribe-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  transcribe-network:
+    driver: bridge
