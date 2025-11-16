@@ -1,11 +1,12 @@
-FROM python:3.13-slim
+FROM python:3.12-slim
 
 WORKDIR /code
 
-#Install system dependencies for PostgreSQL
+#Install system dependencies for PostgreSQL and libmagic
 RUN apt-get update && apt-get install -y \
     gcc \
     postgresql-client \
+    libmagic1 \
     && rm -rf /var/lib/apt/lists/*
 
 #Upgrade pip
