@@ -70,7 +70,7 @@ async def upload_audio(
     timestamp = datetime.utcnow().strftime('%Y%m%d_%H%M%S')
     unique_id = str(uuid.uuid4())[:8]
     file_extension = os.path.splitext(audio.filename)[1] or '.wav'
-    s3_key = f"audio/{user.username}/{timestamp}_{unique_id}{file_extension}"
+    s3_key = f"uploads/{user.username}/{timestamp}_{unique_id}{file_extension}"
 
     try:
         #Upload to S3
