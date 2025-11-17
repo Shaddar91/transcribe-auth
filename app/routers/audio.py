@@ -66,11 +66,12 @@ async def upload_audio(
             detail=f"Invalid file type: {mime}. Allowed types: {', '.join(ALLOWED_MIME_TYPES)}"
         )
 
-    #Generate unique filename
-    timestamp = datetime.utcnow().strftime('%Y%m%d_%H%M%S')
-    unique_id = str(uuid.uuid4())[:8]
+    #Generate unique filename matching frontend format (voice_recording_YYYY-MM-DDTHH-MM-SS-mmmZ.wav)
+    #Use ISO 8601 format with colons and dots replaced by dashes for filesystem compatibility
+    timestamp = datetime.utcnow().isoformat().replace(':', '-').replace('.', '-')
     file_extension = os.path.splitext(audio.filename)[1] or '.wav'
-    s3_key = f"uploads/{user.username}/{timestamp}_{unique_id}{file_extension}"
+    filename = f"voice_recording_{timestamp}Z{file_extension}"
+    s3_key = f"audio/{user.username}/{filename}"
 
     try:
         #Upload to S3
