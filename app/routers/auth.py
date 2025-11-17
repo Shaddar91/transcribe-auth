@@ -56,8 +56,9 @@ async def register(
         value=session_token,
         httponly=True,
         max_age=7 * 24 * 60 * 60,  #7 days in seconds
-        samesite="lax",
-        secure=False  #Set to False for local development (HTTP)
+        samesite="none",  #Required for cross-origin (auth.cloud-lord.com → transcribe.cloud-lord.com)
+        secure=True,  #Required when samesite=none
+        domain=".cloud-lord.com"  #Share cookie across subdomains
     )
 
     return LoginResponse(
@@ -92,8 +93,9 @@ async def login(
         value=session_token,
         httponly=True,
         max_age=7 * 24 * 60 * 60,  #7 days in seconds
-        samesite="lax",
-        secure=False  #Set to False for local development (HTTP)
+        samesite="none",  #Required for cross-origin (auth.cloud-lord.com → transcribe.cloud-lord.com)
+        secure=True,  #Required when samesite=none
+        domain=".cloud-lord.com"  #Share cookie across subdomains
     )
 
     return LoginResponse(

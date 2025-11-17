@@ -16,8 +16,8 @@ app = FastAPI(
     version="1.0.0"
 )
 
-#CORS configuration - only allow transcribe.cloudlord.com
-ALLOWED_ORIGIN = os.getenv("ALLOWED_ORIGIN", "https://transcribe.cloudlord.com")
+#CORS configuration - only allow transcribe.cloud-lord.com
+ALLOWED_ORIGIN = os.getenv("ALLOWED_ORIGIN", "https://transcribe.cloud-lord.com")
 
 app.add_middleware(
     CORSMiddleware,
