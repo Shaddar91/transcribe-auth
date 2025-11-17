@@ -18,4 +18,5 @@ services:
 
 networks:
   transcribe-network:
-    driver: bridge
+    name: transcribe-network
+    external: true
