@@ -35,13 +35,7 @@ async def upload_audio(
     ALLOWED_MIME_TYPES = [
         'audio/wav',
         'audio/wave',
-        'audio/x-wav',
-        'audio/webm',
-        'audio/mpeg',
-        'audio/mp3',
-        'audio/ogg',
-        'audio/x-m4a',
-        'audio/mp4'
+        'audio/x-wav'
     ]
 
     #Read file content
